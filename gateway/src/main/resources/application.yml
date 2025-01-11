@@ -5,13 +5,13 @@ spring:
   application:
     name: gateway
 
-  cloud:
-    gateway:
-      routes:
-        - id: USERSERVICE
-          uri: http://localhost:18081
-          predicates:
-            - Path=/ms1/**
+  # cloud:
+  #   gateway:
+  #     routes:
+  #       - id: USERSERVICE
+  #         uri: http://localhost:18081
+  #         predicates:
+  #           - Path=/ms1/**
             
 server:
   port: 8080
