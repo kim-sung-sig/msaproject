@@ -20,8 +20,8 @@ public class GatewayConfig {
         return builder.routes()
                 .route("USERSERVICE", r -> r
                         .path("/ms1/**")
-                        .filters(f -> f.filter(jwtAuthenticationFilter))
-                        .uri("http://localhost:18081"))
+                        // .filters(f -> f.filter(jwtAuthenticationFilter))
+                        .uri("lb://USERSERVICE"))
 
                 // 기본 라우팅 설정
                 .route("DEFAULT_ROUTE", r -> r
