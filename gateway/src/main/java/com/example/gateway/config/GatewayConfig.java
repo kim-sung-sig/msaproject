@@ -23,6 +23,10 @@ public class GatewayConfig {
                         // .filters(f -> f.filter(jwtAuthenticationFilter))
                         .uri("lb://USERSERVICE"))
 
+                .route("DEFAULT_ROUTE", r -> r
+                        .path("/**")
+                        .filters(f -> f.setStatus(404))
+                        .uri("no://op"))
                 .build();
     }
 

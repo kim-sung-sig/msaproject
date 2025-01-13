@@ -1,0 +1,13 @@
+services:
+  auth:
+    image: my-config-app:latest
+    container_name: config-app
+    # environment:
+      # SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/daangndb
+      # SPRING_DATASOURCE_USERNAME: daangn
+      # SPRING_DATASOURCE_PASSWORD: 123456
+    restart: always
+    # depends_on:
+    #   - db
+    ports:
+      - "9000:9000"
