@@ -1,4 +1,4 @@
-package com.example.userservice.dto;
+package com.example.userservice.dto.securiry;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -9,17 +9,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.userservice.entity.UserEntity;
-import com.example.userservice.enums.UserLock;
+import com.example.userservice.entity.User;
+import com.example.userservice.enums.UserStatus;
 
 import lombok.Data;
 
 @Data
 public class CustomUserDatails implements UserDetails {
 
-    private UserEntity user;
+    private User user;
 
-    public CustomUserDatails(UserEntity user){
+    public CustomUserDatails(User user){
         this.user = user;
     }
 
@@ -40,8 +40,8 @@ public class CustomUserDatails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        UserLock lock = user.getLock();
-        boolean isLocked = Objects.equals(lock, UserLock.LOCKED);
+        UserStatus status = user.getStatus();
+        boolean isLocked = Objects.equals(status, UserStatus.LOCKED);
         if(isLocked) { // 계정 잠김
             return false;
         }
@@ -62,8 +62,8 @@ public class CustomUserDatails implements UserDetails {
 
     @Override
     public boolean isEnabled() { // 계정 만료 또는 삭제
-        UserLock lock = user.getLock();
-        return Objects.equals(lock, UserLock.ENABLED);
+        UserStatus lock = user.getStatus();
+        return Objects.equals(lock, UserStatus.ENABLED);
     }
 
     @Override

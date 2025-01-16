@@ -1,6 +1,6 @@
 package com.example.userservice.enums;
 
-public enum UserLock {
+public enum UserStatus {
 
     ENABLED("계정 활성화"),
     LOCKED("계정 잠김"),
@@ -10,7 +10,7 @@ public enum UserLock {
 
     private final String title;
 
-    private UserLock(String title) {
+    private UserStatus(String title) {
         this.title = title;
     }
 
