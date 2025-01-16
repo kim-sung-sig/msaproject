@@ -1,7 +1,7 @@
 package com.example.userservice.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -93,9 +93,9 @@ public class User {
 
     // mapping
     @OneToMany(targetEntity = UserProfilePicture.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserProfilePicture> profiles;
+    private Set<UserProfilePicture> profiles;
 
     @OneToMany(targetEntity = PasswordHistory.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PasswordHistory> passwordHistories;
+    private Set<PasswordHistory> passwordHistories;
 
 }
