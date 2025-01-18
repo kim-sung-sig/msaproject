@@ -35,8 +35,8 @@ import lombok.NoArgsConstructor;
     indexes = {
         @Index(name = "idx_user_uuid", columnList = "uuid", unique = true),
         @Index(name = "idx_user_username", columnList = "username", unique = true),
-        @Index(name = "idx_user_nickname", columnList = "nickName"),
-        @Index(name = "idx_user_nick_seq", columnList = "nickSeq"),
+        @Index(name = "idx_user_nickname", columnList = "nick_name"),
+        @Index(name = "idx_user_nick_seq", columnList = "nick_seq"),
         @Index(name = "idx_user_email", columnList = "email"),})
 @EntityListeners(AuditingEntityListener.class)
 @Data
@@ -50,7 +50,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(name = "uuid", nullable = false, unique = true)
     private UUID uuid;
 
     // security
