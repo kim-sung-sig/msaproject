@@ -19,6 +19,7 @@ import com.example.userservice.repository.history.NickNameHistoryRepository;
 import com.example.userservice.repository.history.PasswordHistoryRepository;
 import com.example.userservice.repository.user.UserRepository;
 import com.example.userservice.request.CreateUserRequest;
+import com.example.userservice.request.UpdateUserRequest;
 import com.example.userservice.util.CommonUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,7 @@ public class UserService {
     }
 
     // 회원 정보 수정
-    public void updateUser() {
+    public void updateUser(UpdateUserRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
