@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthController {
 
-
     // 비밀 번호 재설정 요청
     @PostMapping("/password-reset-request")
     public void passwordResetRequest() {
@@ -47,5 +46,5 @@ public class AuthController {
     public void accessToken(@RequestBody String entity) {
         log.info("토큰 발급 요청");
     }
-    
+
 }

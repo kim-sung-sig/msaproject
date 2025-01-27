@@ -1,6 +1,7 @@
 package com.example.userservice.service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,7 +55,6 @@ public class UserService {
 
         if (userRepository.existsByUsername(username)) throw new RuntimeException("Username already exists");
 
-
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
 
@@ -81,7 +81,8 @@ public class UserService {
     public void updateUser(UpdateUserRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 변수 추출
 
@@ -92,13 +93,33 @@ public class UserService {
     }
 
     // 비밀번호 변경
-    public void updateUserPassword() {
+    public void updateUserPassword(String inputPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) throw new RuntimeException("Authentication not found");
 
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        passwordUpdateProcess(user, inputPassword);
+
+        // 메시지 전송
+        // rabbitTemplate.convertAndSend("user.exchange", "user.update", user); // TODO : userEntity -> UserUpdateEvent
     }
 
-    // 비밀번호 변경 (로그인 없이)
-    public void updateUserPasswordWithoutLogin() {
+    /**
+     * 비밀번호 변경 (로그인 없이)
+     * @param token
+     * @param inputPassword
+     */
+    public void updateUserPasswordWithoutLogin(String token, String inputPassword) {
+        String username = ""; // CommonUtil.getUsernameFromToken(token);
+        if (username == null) throw new RuntimeException("Username not found");
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        passwordUpdateProcess(user, inputPassword);
     }
 
     // 이메일 변경
@@ -108,13 +129,21 @@ public class UserService {
 
     // 회원 탈퇴
     public void deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) throw new RuntimeException("Authentication not found");
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
     }
 
-    // 잠금 풀기 (개인)
+    // 잠금 풀기 (비밀 번호 실패 횟수 초과로 잠금)
     public void unlockUser() {
 
     }
+
 
     // 회원 정보 조회
     public void getUser() {
@@ -158,4 +187,22 @@ public class UserService {
             });
     }
 
+    private void passwordUpdateProcess(User user, String newPassword) {
+        // 이전 비밀 번호와 동일 한지 확인
+        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findTop5ByUserOrderByCreatedAtDesc(user);
+        boolean isPasswordReused = passwordHistories.stream()
+                .anyMatch(passwordHistory -> passwordEncoder.matches(newPassword, passwordHistory.getPassword()));
+        if (isPasswordReused) throw new RuntimeException("Password is reused");
+
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        // 저장 시작
+        user.setPassword(encodedPassword);
+        user.setPasswordHistories(Collections.singleton(PasswordHistory.builder()
+                .user(user)
+                .password(encodedPassword)
+                .build())); // passwordHistory 저장
+        userRepository.save(user);
+    }
 }

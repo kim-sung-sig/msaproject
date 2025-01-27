@@ -2,24 +2,20 @@ package com.example.userservice.userservice;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
 public class Main {
 
     public static void main(String[] args) {
         Solution solution = new Solution();
-        int[] xs = {10, 10, 2};
-        int[] ys = {40, 40, 5};
-        int[] ns = {5, 30, 4};
+        int[][] orders = {{4,3,1,2,5}, {5,4,3,2,1}};
+        int[] results = {2, 5};
 
-        int[] results = {2, 1, -1};
+        for (int i = 0; i < 2; i++) {
+            int[] order = orders[i];
+            int result = results[i];
 
-        for (int i = 0; i < 3; i++) {
-            int x = xs[i], y = ys[i], n = ns[i], result = results[i];
-
-            int answer = solution.solution(x, y, n);
+            int answer = solution.solution(order);
             System.out.println(answer);
             assertEquals(result, answer);
         }
@@ -29,31 +25,19 @@ public class Main {
 
 class Solution {
 
-    public int solution(int x, int y, int n) {
-        if (x == y) return 0;
+    public int solution(int[] order) {
+        int answer = 0;
+        Stack<Integer> stack = new Stack<>();
 
-        int[] dp = new int[y+1];
-        final int MAX = 1_000_001;
-        Arrays.fill(dp, MAX);
-        dp[x] = 0;
-
-        Queue<Integer> q = new LinkedList<>();
-        q.offer(x);
-
-        while (!q.isEmpty()) {
-            int cur = q.poll();
-
-            for (int val : new int[]{cur + n, cur * 2, cur * 3}) {
-                if (val > y) continue;
-
-                if(dp[val] > dp[cur] + 1) {
-                    dp[val] = dp[cur] + 1;
-                    q.offer(val);
-                }
+        for (int box = 1; box <= order.length; box++) {
+            stack.push(box);
+            while (!stack.isEmpty() && stack.peek() == order[answer]) {
+                stack.pop();
+                answer++;
             }
         }
 
-        return dp[y] == MAX ? -1 : dp[y];
+        return answer;
     }
 
 }
