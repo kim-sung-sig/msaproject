@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +37,7 @@ public class UserService {
     private final PasswordHistoryRepository passwordHistoryRepository;
 
     private final RabbitTemplate rabbitTemplate;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
 
     // 회원 가입
@@ -113,7 +115,7 @@ public class UserService {
      * @param inputPassword
      */
     public void updateUserPasswordWithoutLogin(String token, String inputPassword) {
-        String username = ""; // CommonUtil.getUsernameFromToken(token);
+        String username = CommonUtil.getLoginedUserName();
         if (username == null) throw new RuntimeException("Username not found");
 
         User user = userRepository.findByUsername(username)

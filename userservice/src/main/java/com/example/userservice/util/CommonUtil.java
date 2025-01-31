@@ -3,7 +3,16 @@ package com.example.userservice.util;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 public class CommonUtil {
+
+    public static String getLoginedUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return null;
+        return authentication.getName();
+    }
 
     public static boolean isEmpty(String str) {
         return Objects.isNull(str) || str.trim().isEmpty();

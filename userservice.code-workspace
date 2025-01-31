@@ -1,0 +1,33 @@
+{
+	"folders": [
+		{
+			"name": "userservice",
+			"path": "userservice"
+		},
+		{
+			"name": "userservice2",
+			"path": "userservice2"
+		},
+		{
+			"name": "chatservice",
+			"path": "chatservice"
+		},
+		{
+			"name": "configserver",
+			"path": "configserver"
+		},
+		{
+			"name": "eurekaservice",
+			"path": "eurekaservice"
+		},
+		{
+			"name": "gateway",
+			"path": "gateway"
+		},
+		{
+			"name": "msaproject",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

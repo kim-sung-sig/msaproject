@@ -1,43 +1,56 @@
 package com.example.userservice.userservice;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Stack;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    public static void main(String[] args) {
-        Solution solution = new Solution();
-        int[][] orders = {{4,3,1,2,5}, {5,4,3,2,1}};
-        int[] results = {2, 5};
+    static List<String> moeum = List.of("a", "e", "i", "o", "u"); // 모음 리스트
 
-        for (int i = 0; i < 2; i++) {
-            int[] order = orders[i];
-            int result = results[i];
+    public static void main(String[] args) throws Exception {
+        var reader = new BufferedReader(new InputStreamReader(System.in));
+        var st = new StringTokenizer(reader.readLine(), " ");
+        int L = Integer.parseInt(st.nextToken());
+        int C = Integer.parseInt(st.nextToken());
 
-            int answer = solution.solution(order);
-            System.out.println(answer);
-            assertEquals(result, answer);
+        String[] arr = new String[C];
+        st = new StringTokenizer(reader.readLine(), " ");
+        for (int i = 0; i < C; i++) arr[i] = st.nextToken();
+        Arrays.sort(arr);
+
+        List<String> result = new ArrayList<>();
+        generateCombinations(arr, L, 0, new StringBuilder(), result);
+        result.forEach(System.out::println);
+
+    }
+
+    static void generateCombinations(String[] arr, int L, int startIndex, StringBuilder current, List<String> result) {
+
+        if (current.length() == L) {
+            String candidate = current.toString();
+            if (isValid(candidate)) result.add(candidate);
+            return;
+        }
+
+        for (int i = startIndex; i < arr.length; i++) {
+            current.append(arr[i]);
+            generateCombinations(arr, L, i + 1, current, result);
+            current.deleteCharAt(current.length() - 1); // 백트래킹
         }
     }
 
-}
-
-class Solution {
-
-    public int solution(int[] order) {
-        int answer = 0;
-        Stack<Integer> stack = new Stack<>();
-
-        for (int box = 1; box <= order.length; box++) {
-            stack.push(box);
-            while (!stack.isEmpty() && stack.peek() == order[answer]) {
-                stack.pop();
-                answer++;
-            }
+    static boolean isValid(String s) {
+        int mc = 0;
+        int jc = 0;
+        for (String str : s.split("")) {
+            if (moeum.contains(str)) mc++;
+            else jc++;
         }
-
-        return answer;
+        return mc >= 1 && jc >= 2;
     }
 
 }
