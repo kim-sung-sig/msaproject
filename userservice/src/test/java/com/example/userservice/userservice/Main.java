@@ -2,55 +2,140 @@ package com.example.userservice.userservice;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Queue;
 
 public class Main {
 
-    static List<String> moeum = List.of("a", "e", "i", "o", "u"); // 모음 리스트
+    static int[][] delta = new int[][] {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 
     public static void main(String[] args) throws Exception {
-        var reader = new BufferedReader(new InputStreamReader(System.in));
-        var st = new StringTokenizer(reader.readLine(), " ");
-        int L = Integer.parseInt(st.nextToken());
-        int C = Integer.parseInt(st.nextToken());
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            int N = Integer.parseInt(br.readLine());
 
-        String[] arr = new String[C];
-        st = new StringTokenizer(reader.readLine(), " ");
-        for (int i = 0; i < C; i++) arr[i] = st.nextToken();
-        Arrays.sort(arr);
+            int[][] arr = new int[N][N];
 
-        List<String> result = new ArrayList<>();
-        generateCombinations(arr, L, 0, new StringBuilder(), result);
-        result.forEach(System.out::println);
+            for (int i = 0; i < N; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < N; j++) {
+                    arr[i][j] = line.charAt(j) - '0';
+                }
+            }
 
-    }
+            List<Integer> countList = new ArrayList<>();
+            for (int x = 0; x < N; x++) {
+                for (int y = 0; y < N; y++) {
+                    if (arr[x][y] == 0) continue;
+                    countList.add(bfs(x, y, arr));
+                }
+            }
 
-    static void generateCombinations(String[] arr, int L, int startIndex, StringBuilder current, List<String> result) {
-
-        if (current.length() == L) {
-            String candidate = current.toString();
-            if (isValid(candidate)) result.add(candidate);
-            return;
-        }
-
-        for (int i = startIndex; i < arr.length; i++) {
-            current.append(arr[i]);
-            generateCombinations(arr, L, i + 1, current, result);
-            current.deleteCharAt(current.length() - 1); // 백트래킹
+            System.out.println(countList.size());
+            countList.sort(Integer::compareTo);
+            countList.forEach(System.out::println);
         }
     }
 
-    static boolean isValid(String s) {
-        int mc = 0;
-        int jc = 0;
-        for (String str : s.split("")) {
-            if (moeum.contains(str)) mc++;
-            else jc++;
+    static int bfs(int x, int y, int[][] arr) {
+        int homeCount = 1;
+        int N = arr.length;
+
+        Queue<int[]> queue = new ArrayDeque<>();
+        arr[x][y] = 0;
+        queue.offer(new int[] {x, y});
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+
+            for (int[] d : delta) {
+                int nx = current[0] + d[0];
+                int ny = current[1] + d[1];
+
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+                if (arr[nx][ny] == 0) continue;
+
+                arr[nx][ny] = 0;
+                homeCount++;
+                queue.offer(new int[] {nx, ny});
+            }
         }
-        return mc >= 1 && jc >= 2;
+
+        return homeCount;
+    }
+
+    /*
+    public static void main(String[] args){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            int N = Integer.parseInt(br.readLine());
+
+            int[][] arr = new int[N][N];
+
+            for (int i = 0; i < N; i++) {
+                String line = br.readLine();
+                for (int j = 0; j < N; j++) {
+                    arr[i][j] = line.charAt(j) - '0';
+                }
+            }
+
+            int[][] dp = new int[N][N];
+            int count = 0;
+            List<Integer> countList = new ArrayList<>();
+
+            for (int x = 0; x < N; x++) {
+                for (int y = 0; y < N; y++) {
+                    if (arr[x][y] == 0) continue;
+                    if (dp[x][y] != 0) continue;
+
+                    countList.add(bfs(x, y, arr, dp, ++count));
+                }
+            }
+
+            System.out.println(count);
+            countList.stream().sorted().forEach(System.out::println);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static int bfs(int x, int y, int[][] arr, int[][] dp, int sign) {
+        int homeCount = 1;
+        int N = arr.length;
+
+        Queue<int[]> queue = new LinkedList<>();
+        dp[x][y] = sign;
+        queue.add(new int[] {x, y});
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+
+            for (int[] d : delta) {
+                int nx = current[0] + d[0];
+                int ny = current[1] + d[1];
+
+                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+                if (arr[nx][ny] == 0) continue;
+                if (dp[nx][ny] != 0) continue;
+
+                dp[nx][ny] = sign;
+                homeCount++;
+                queue.add(new int[] {nx, ny});
+            }
+        }
+
+        return homeCount;
+    }
+
+     */
+
+    static void print(int[][] arr) {
+        for (int[] a : arr) {
+            for (int b : a) {
+                System.out.print(b + " ");
+            }
+            System.out.println("");
+        }
     }
 
 }
