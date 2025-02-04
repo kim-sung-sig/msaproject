@@ -2,140 +2,70 @@ package com.example.userservice.userservice;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static int[][] delta = new int[][] {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+    static int N, M; // 도시의 개수, 버스 노선의 개수
+    static Edge[] bus; // 버스 노선 정보
 
     public static void main(String[] args) throws Exception {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            int N = Integer.parseInt(br.readLine());
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-            int[][] arr = new int[N][N];
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
 
-            for (int i = 0; i < N; i++) {
-                String line = br.readLine();
-                for (int j = 0; j < N; j++) {
-                    arr[i][j] = line.charAt(j) - '0';
-                }
-            }
-
-            List<Integer> countList = new ArrayList<>();
-            for (int x = 0; x < N; x++) {
-                for (int y = 0; y < N; y++) {
-                    if (arr[x][y] == 0) continue;
-                    countList.add(bfs(x, y, arr));
-                }
-            }
-
-            System.out.println(countList.size());
-            countList.sort(Integer::compareTo);
-            countList.forEach(System.out::println);
+        bus = new Edge[M];
+        for(int i = 0; i < M; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int src = Integer.parseInt(st.nextToken());
+            int dest = Integer.parseInt(st.nextToken());
+            int weight = Integer.parseInt(st.nextToken());
+            bus[i] = new Edge(src, dest, weight);
         }
+        br.close();
+
+        bellmanFord(N, M, bus, 1);
     }
 
-    static int bfs(int x, int y, int[][] arr) {
-        int homeCount = 1;
-        int N = arr.length;
+    static void bellmanFord(int V, int E, Edge[] edges, int start){
+        long INF = Long.MAX_VALUE;
+        long[] dist = new long[V + 1];
+        Arrays.fill(dist, INF);
+        dist[start] = 0;
 
-        Queue<int[]> queue = new ArrayDeque<>();
-        arr[x][y] = 0;
-        queue.offer(new int[] {x, y});
-
-        while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-
-            for (int[] d : delta) {
-                int nx = current[0] + d[0];
-                int ny = current[1] + d[1];
-
-                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
-                if (arr[nx][ny] == 0) continue;
-
-                arr[nx][ny] = 0;
-                homeCount++;
-                queue.offer(new int[] {nx, ny});
+        // 가중치 갱신
+        for (int i = 0; i < V - 1; i++) {
+            for (Edge edge : edges) {
+                if (dist[edge.src] == INF) continue;
+                if (dist[edge.src] + edge.weight < dist[edge.dest]) dist[edge.dest] = dist[edge.src] + edge.weight;
             }
         }
 
-        return homeCount;
-    }
-
-    /*
-    public static void main(String[] args){
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            int N = Integer.parseInt(br.readLine());
-
-            int[][] arr = new int[N][N];
-
-            for (int i = 0; i < N; i++) {
-                String line = br.readLine();
-                for (int j = 0; j < N; j++) {
-                    arr[i][j] = line.charAt(j) - '0';
-                }
-            }
-
-            int[][] dp = new int[N][N];
-            int count = 0;
-            List<Integer> countList = new ArrayList<>();
-
-            for (int x = 0; x < N; x++) {
-                for (int y = 0; y < N; y++) {
-                    if (arr[x][y] == 0) continue;
-                    if (dp[x][y] != 0) continue;
-
-                    countList.add(bfs(x, y, arr, dp, ++count));
-                }
-            }
-
-            System.out.println(count);
-            countList.stream().sorted().forEach(System.out::println);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    static int bfs(int x, int y, int[][] arr, int[][] dp, int sign) {
-        int homeCount = 1;
-        int N = arr.length;
-
-        Queue<int[]> queue = new LinkedList<>();
-        dp[x][y] = sign;
-        queue.add(new int[] {x, y});
-
-        while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-
-            for (int[] d : delta) {
-                int nx = current[0] + d[0];
-                int ny = current[1] + d[1];
-
-                if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
-                if (arr[nx][ny] == 0) continue;
-                if (dp[nx][ny] != 0) continue;
-
-                dp[nx][ny] = sign;
-                homeCount++;
-                queue.add(new int[] {nx, ny});
+        // 어떤 도시로 가는 과정에서 시간을 무한히 오래 전으로 되돌릴 수 있는지 확인
+        for (Edge edge : edges) {
+            if (dist[edge.src] == INF) continue;
+            if (dist[edge.src] + edge.weight < dist[edge.dest]) {
+                System.out.println("-1");
+                return;
             }
         }
 
-        return homeCount;
+        // 해당 도시로 가는 경로가 없을 경우 -1 출력
+        StringBuilder sb = new StringBuilder();
+        for (int i = 2; i <= V; i++) sb.append(dist[i] == INF ? "-1\n" : dist[i] + "\n");
+        System.out.println(sb.toString());
     }
 
-     */
+}
 
-    static void print(int[][] arr) {
-        for (int[] a : arr) {
-            for (int b : a) {
-                System.out.print(b + " ");
-            }
-            System.out.println("");
-        }
+class Edge {
+    int src, dest, weight;
+    public Edge(int s, int d, int w) {
+        this.src = s;
+        this.dest = d;
+        this.weight = w;
     }
-
 }
