@@ -2,70 +2,69 @@ package com.example.userservice.userservice;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    static int N, M; // 도시의 개수, 버스 노선의 개수
-    static Edge[] bus; // 버스 노선 정보
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int t = Integer.parseInt(br.readLine());
 
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-
-        bus = new Edge[M];
-        for(int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int src = Integer.parseInt(st.nextToken());
-            int dest = Integer.parseInt(st.nextToken());
-            int weight = Integer.parseInt(st.nextToken());
-            bus[i] = new Edge(src, dest, weight);
-        }
-        br.close();
-
-        bellmanFord(N, M, bus, 1);
-    }
-
-    static void bellmanFord(int V, int E, Edge[] edges, int start){
-        long INF = Long.MAX_VALUE;
-        long[] dist = new long[V + 1];
-        Arrays.fill(dist, INF);
-        dist[start] = 0;
-
-        // 가중치 갱신
-        for (int i = 0; i < V - 1; i++) {
-            for (Edge edge : edges) {
-                if (dist[edge.src] == INF) continue;
-                if (dist[edge.src] + edge.weight < dist[edge.dest]) dist[edge.dest] = dist[edge.src] + edge.weight;
-            }
-        }
-
-        // 어떤 도시로 가는 과정에서 시간을 무한히 오래 전으로 되돌릴 수 있는지 확인
-        for (Edge edge : edges) {
-            if (dist[edge.src] == INF) continue;
-            if (dist[edge.src] + edge.weight < dist[edge.dest]) {
-                System.out.println("-1");
-                return;
-            }
-        }
-
-        // 해당 도시로 가는 경로가 없을 경우 -1 출력
         StringBuilder sb = new StringBuilder();
-        for (int i = 2; i <= V; i++) sb.append(dist[i] == INF ? "-1\n" : dist[i] + "\n");
-        System.out.println(sb.toString());
+        while(t-- > 0) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int n = Integer.parseInt(st.nextToken());
+            int m = Integer.parseInt(st.nextToken());
+            int k = Integer.parseInt(st.nextToken());
+
+            List<int[]> points = new ArrayList<>();
+            boolean[][] visited = new boolean[n][m];
+            for(int i = 0; i < k; i++) {
+                st = new StringTokenizer(br.readLine(), " ");
+                int x = Integer.parseInt(st.nextToken());
+                int y = Integer.parseInt(st.nextToken());
+                visited[x][y] = true;
+                points.add(new int[]{x, y});
+            }
+
+            int[] dx = {-1, 1, 0, 0};
+            int[] dy = {0, 0, -1, 1};
+
+            int result = 0;
+            for (int[] point : points) {
+                int i = point[0];
+                int j = point[1];
+                if (!visited[i][j]) continue;
+
+                result++;
+
+                Queue<int[]> queue = new LinkedList<>();
+                queue.offer(point);
+                visited[i][j] = false;
+
+                while (!queue.isEmpty()) {
+                    int[] cur = queue.poll();
+                    int x = cur[0], y = cur[1];
+
+                    for (int d = 0; d < 4; d++) {
+                        int nx = x + dx[d], ny = y + dy[d];
+
+                        if (0 <= nx && 0 <= ny && nx < n && ny < m && visited[nx][ny]) {
+                            queue.offer(new int[]{nx, ny});
+                            visited[nx][ny] = false;
+                        }
+                    }
+                }
+            }
+
+            sb.append(result).append("\n");
+        }
+
+        System.out.println(sb);
     }
 
-}
-
-class Edge {
-    int src, dest, weight;
-    public Edge(int s, int d, int w) {
-        this.src = s;
-        this.dest = d;
-        this.weight = w;
-    }
 }
