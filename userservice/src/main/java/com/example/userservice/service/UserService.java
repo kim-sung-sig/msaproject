@@ -1,6 +1,5 @@
 package com.example.userservice.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,8 +71,8 @@ public class UserService {
         newUser.setNickName(nickName);
         newUser.setNickSeq(getNickSeq(nickName));   // nickSeq 추출
         newUser.setEmail(email);
-        newUser.setPasswordHistories(Collections.singleton(PasswordHistory.builder().user(newUser).password(encodedPassword).build())); // passwordHistory 저장
         userRepository.save(newUser);
+        passwordHistoryRepository.save(PasswordHistory.builder().user(newUser).password(encodedPassword).build()); // passwordHistory 저장
 
         // 메시지 전송
         rabbitTemplate.convertAndSend("user.exchange", "user.create", newUser); // TODO : userEntity -> UserCreateEvent
@@ -201,10 +200,8 @@ public class UserService {
 
         // 저장 시작
         user.setPassword(encodedPassword);
-        user.setPasswordHistories(Collections.singleton(PasswordHistory.builder()
-                .user(user)
-                .password(encodedPassword)
-                .build())); // passwordHistory 저장
         userRepository.save(user);
+
+        passwordHistoryRepository.save(PasswordHistory.builder().user(user).password(encodedPassword).build()); // passwordHistory 저장
     }
 }

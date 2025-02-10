@@ -51,6 +51,8 @@ dependencies {
 
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	// redis session
+	implementation 'org.springframework.session:spring-session-data-redis'
 
 	// rabbitmq
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
@@ -66,8 +68,21 @@ dependencies {
 	// oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	// CODEC BASE62
+	implementation 'org.unbroken-dome.base62:base62:1.1.0'
+
 	// validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+	// spring batch
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+	// thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'

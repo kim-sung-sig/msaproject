@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th=http://www.thymeleaf.org xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+	<title>당근마켓 - 로그인</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+
+	<!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+	<!-- Custom CSS -->
+	<link rel="stylesheet" href="/css/reset.css" />
+	<link rel="stylesheet" href="/css/fonts.css" />
+	<link rel="stylesheet" href="/css/login.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,200,0,0" />
+
+	<!-- UIkit JS -->
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+	<!-- Ajax처리를 위한 포함 -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<!-- Vue.js 3 최신 CDN -->
+	<script src="https://unpkg.com/vue@3.3.4"></script>
+	<!-- Vue Router 최신 CDN -->
+	<script src="https://unpkg.com/vue-router@4.2.5"></script>
+</head>
+
+<body>
+	<div id="wrap">
+		<div id="app">
+			<div id="login-logo">
+				<div id="imgaa">
+					LOGO
+				</div>
+			</div>
+			<form @submit.prevent="login" id="login-form">
+
+				<!-- username input -->
+				<div class="input-component">
+					<div class="input-container">
+						<input
+							class="uk-input"
+							v-model="username"
+							id="username"
+							ref="usernameInput"
+							placeholder=""
+						/>
+						<label for="username">Username</label>
+						<span v-if="usernameError" class="error-message">{{ usernameError }}</span>
+						<!-- <span class="error-message">에러테스트</span> -->
+					</div>
+				</div>
+
+				<!-- password input -->
+				<div class="input-component">
+					<div class="input-container">
+						<input
+							class="uk-input"
+							v-model="password"
+							id="password"
+							type="password"
+							ref="passwordInput"
+							placeholder=""
+						/>
+						<label for="password">Password</label>
+						<span v-if="passwordError" class="error-message">{{ passwordError }}</span>
+						<!-- <span class="error-message">에러테스트</span> -->
+					</div>
+				</div>
+
+				<!-- checker input-->
+				<div v-if="failCnt" id="failBox">
+					<div class="input-component">
+						<div class="input-container">
+							<input
+								class="uk-input"
+								v-model="checker"
+								id="checker"
+								type="text"
+								ref="checkerInput"
+								value="checker"
+								disabled
+							/>
+							<span class="message">인증 번호</span>
+						</div>
+					</div>
+					<div class="input-component">
+						<div class="input-container">
+							<input
+								class="uk-input"
+								v-model="checkerVal"
+								id="checkerVal"
+								type="text"
+								ref="checkerValInput"
+								placeholder=""
+							/>
+							<label for="checkerVal">인증 번호 입력</label>
+							<span v-if="checkerError" class="error-message">{{ checkerError }}</span>
+							<!-- <span class="error-message">에러테스트</span> -->
+						</div>
+					</div>
+				</div>
+
+				<button id="login-btn" class="uk-button" type="submit">Login</button>
+			</form>
+			<div id="find-wrap">
+				<ul>
+					<li><a>비밀번호 찾기</a></li>
+					<li><a>아이디 찾기</a></li>
+					<li><a>회원가입</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const { createApp } = Vue;
+		const app = createApp({
+			data() {
+				return {
+					username: '',
+					password: '',
+					usernameError: '',
+					passwordError: '',
+					failCnt : false,
+					isLocked : false,
+					checker : '',
+					checkerVal : '',
+					checkerError : '',
+				}
+			},
+			methods: {
+				login() {
+					const loginValidCheker = this.loginValidation();
+					if(loginValidCheker) this.doLogin();
+				},
+
+				async doLogin() {
+					try {
+						const formData = new FormData();
+						formData.append('username', this.username);
+						formData.append('password', this.password);
+
+						const response = await axios.post('/login', formData,);
+						console.log(response.status);
+						console.log(response.data);
+						// debugger;
+						if(response.data?.success === true){
+							const redirectUrl = response.data?.redirectUrl;
+							if(redirectUrl){
+								location.href = redirectUrl;
+							} else {
+								location.href = '/';
+							}
+						} else {
+							alert('로그인 실패');
+							this.clearForm();
+						}
+
+					} catch (e) {
+						const response = e.response;
+						const msg = response.data?.message;
+						console.log(msg);
+						if ("USERNAME_NOT_FOUND" === msg) {
+							alert('존재하지 않는 사용자입니다.');
+							this.clearForm();
+						}
+						if (msg.startsWith("PASSWORD_NOT_MATCH")) {
+							const message = '비밀번호가 일치하지 않습니다.';
+
+							alert(message);
+							const count = msg.split(':')[1];
+							if(count >= 5) {
+								this.failCnt = true;
+								this.checker = 'checker';
+								this.checkerVal = '';
+							}
+							this.password = '';
+							this.$refs.passwordInput.focus();
+							this.passwordError = message;
+						}
+						if ("LOCKED" === msg) {
+							alert('계정이 잠겼습니다. 계정 잠금을 해제해주세요.');
+							// locked 페이지로 변경
+						}
+						if ("INTERNAL_SERVER_ERROR" === msg) {
+							alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+							location.reload();
+						}
+					}
+				},
+
+				/**
+				 * 로그인 유효성 검사
+				 * @param {string} username 사용자 이름
+				 * @param {string} password 비밀번호
+				 */
+				loginValidation() {
+					if (this.username.trim().length === 0) {
+						alert('아이디를 입력해주세요.');
+						this.usernameError = '아이디를 입력해주세요.';
+						this.username = '';
+						this.$refs.usernameInput.focus();
+						return false;
+					} else {
+						this.usernameError = '';
+					}
+					if (this.password.trim().length === 0) {
+						alert('비밀번호를 입력해주세요.');
+						this.passwordError = '비밀번호를 입력해주세요.';
+						this.password = '';
+						this.$refs.passwordInput.focus();
+						return false;
+					} else {
+						this.passwordError = '';
+					}
+					if(this.failCnt) {
+						if(this.checkerVal !== this.checker) {
+							alert('checker를 입력해주세요.');
+							this.checkerError = 'checker를 입력해주세요.';
+							this.checkerVal = '';
+							this.$refs.checkerInput.focus();
+							return false;
+						} else {
+							this.checkerError = '';
+						}
+					}
+					return true;
+				},
+
+				clearForm() {
+					this.username = '';
+					this.password = '';
+					this.$refs.usernameInput.focus();
+				}
+			},
+
+			mounted() {
+				// 자동으로 사용자 이름 입력 필드에 포커스 설정
+				this.$refs.usernameInput.focus();
+			}
+		})
+
+		app.mount('#app');
+	</script>
+</body>
+</html>

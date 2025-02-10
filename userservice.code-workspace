@@ -5,10 +5,6 @@
 			"path": "userservice"
 		},
 		{
-			"name": "userservice2",
-			"path": "userservice2"
-		},
-		{
 			"name": "chatservice",
 			"path": "chatservice"
 		},

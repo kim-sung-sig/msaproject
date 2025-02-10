@@ -73,13 +73,15 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorize) -> {
             authorize
+                .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                .requestMatchers("/login").permitAll()
                 // user
                 .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll() // 회원가입
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/check/**").permitAll() // 중복확인
                 .requestMatchers(HttpMethod.GET, "/api/user/status").permitAll() // 로그인 상태 확인
 
                 // swagger
-                .requestMatchers("/h2-console", "/swagger-ui/**", "/v3/api-docs/**").hasRole(UserRole.ADMIN.name())
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole(UserRole.ADMIN.name())
 
                 .anyRequest().authenticated();
         });
@@ -91,7 +93,8 @@ public class SecurityConfig {
                 .sessionAuthenticationErrorUrl("/login")
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .sessionFixation().none()
-                .maximumSessions(1);
+                .maximumSessions(1)
+                .expiredUrl("/login");
         });
         return http.build();
     }
