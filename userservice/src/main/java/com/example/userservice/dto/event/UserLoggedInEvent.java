@@ -1,16 +1,19 @@
 package com.example.userservice.dto.event;
 
-import com.example.userservice.entity.User;
+import org.springframework.context.ApplicationEvent;
 
-public class UserLoggedInEvent {
+import com.example.userservice.domain.model.UserForSecurity;
 
-    private User user;
+public class UserLoggedInEvent extends ApplicationEvent {
 
-    public UserLoggedInEvent(User user) {
+    private UserForSecurity user;
+
+    public UserLoggedInEvent(Object source, UserForSecurity user) {
+        super(source);
         this.user = user;
     }
 
-    public User getUser() {
+    public UserForSecurity getUser() {
         return user;
     }
 
