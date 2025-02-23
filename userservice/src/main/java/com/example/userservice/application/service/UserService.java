@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -188,7 +189,7 @@ public class UserService {
 
     private void passwordUpdateProcess(User user, String newPassword) {
         // 이전 비밀 번호와 동일 한지 확인
-        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findTop5ByUserOrderByCreatedAtDesc(user);
+        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 5));
         boolean isPasswordReused = passwordHistories.stream()
                 .anyMatch(passwordHistory -> passwordEncoder.matches(newPassword, passwordHistory.getPassword()));
         if (isPasswordReused)
