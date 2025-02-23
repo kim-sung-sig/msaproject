@@ -1,4 +1,4 @@
-package com.example.userservice.domain.enums;
+package com.example.userservice.common.enums;
 
 public enum IsUsed {
 

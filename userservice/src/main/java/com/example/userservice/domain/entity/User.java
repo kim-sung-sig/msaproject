@@ -8,9 +8,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.userservice.domain.enums.UserRole;
-import com.example.userservice.domain.enums.UserStatus;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -123,4 +120,44 @@ public class User implements Serializable {
         this.lastLoginAt = LocalDateTime.now();
         this.loginFailCount = 0;
     }
+
+    public enum UserRole {
+        USER("ROLE_USER", "사용자"),
+        ADMIN("ROLE_ADMIN", "관리자");
+
+        private final String key;
+        private final String title;
+
+        private UserRole(String key, String title) {
+            this.key = key;
+            this.title = title;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
+
+    public enum UserStatus {
+        ENABLED("계정 활성화"),
+        LOCKED("계정 잠김"),
+        EXPIRED("계정 만료"),
+        DISABLED("계정 비활성화"),
+        DELETED("계정 삭제");
+
+        private final String title;
+
+        private UserStatus(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
+
 }

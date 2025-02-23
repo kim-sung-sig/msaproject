@@ -13,16 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.userservice.api.request.UpdateUserRequest;
 import com.example.userservice.api.request.UserCreateCommand;
+import com.example.userservice.common.enums.EventType;
 import com.example.userservice.common.exception.BusinessException;
 import com.example.userservice.common.exception.TemporaryException;
 import com.example.userservice.common.util.CommonUtil;
 import com.example.userservice.domain.entity.NickNameHistory;
 import com.example.userservice.domain.entity.PasswordHistory;
 import com.example.userservice.domain.entity.User;
-import com.example.userservice.domain.enums.UserRole;
-import com.example.userservice.domain.enums.UserStatus;
-import com.example.userservice.domain.event.UserCreatedEvent;
-import com.example.userservice.domain.event.UserDeletedEvent;
+import com.example.userservice.domain.entity.User.UserRole;
+import com.example.userservice.domain.entity.User.UserStatus;
+import com.example.userservice.domain.event.user.UserEvent;
 import com.example.userservice.domain.exception.UserNotFoundException;
 import com.example.userservice.domain.repository.history.NickNameHistoryRepository;
 import com.example.userservice.domain.repository.history.PasswordHistoryRepository;
@@ -101,7 +101,7 @@ public class UserService {
         passwordHistoryRepository.save(passwordHistory);
 
         // 메시지 전송
-        applicationEventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
+        applicationEventPublisher.publishEvent(new UserEvent(this, newUser, EventType.CREATED));
     }
 
     // 회원 정보 수정
@@ -132,7 +132,7 @@ public class UserService {
         user.userDelete();
 
         // 메시지 전송
-        applicationEventPublisher.publishEvent(new UserDeletedEvent(this, user));
+        applicationEventPublisher.publishEvent(new UserEvent(this, user, EventType.DELETED));
 
         // 세션 무효화
         SecurityContextHolder.clearContext();

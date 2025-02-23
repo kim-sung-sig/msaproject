@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.userservice.domain.enums.UserStatus;
+import com.example.userservice.domain.entity.User.UserStatus;
 import com.example.userservice.domain.model.UserForSecurity;
 
 import lombok.Data;

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.userservice.common.constants.ConstantsUtil;
 import com.example.userservice.domain.entity.User;
-import com.example.userservice.domain.enums.UserStatus;
+import com.example.userservice.domain.entity.User.UserStatus;
 import com.example.userservice.domain.repository.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

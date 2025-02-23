@@ -20,7 +20,7 @@ import org.springframework.web.filter.CorsFilter;
 import com.example.userservice.common.config.securiry.handler.CustomLoginFailureHandler;
 import com.example.userservice.common.config.securiry.handler.CustomLoginSuccessHandler;
 import com.example.userservice.common.config.securiry.service.CustomUserDetailsService;
-import com.example.userservice.domain.enums.UserRole;
+import com.example.userservice.domain.entity.User.UserRole;
 
 import lombok.RequiredArgsConstructor;
 

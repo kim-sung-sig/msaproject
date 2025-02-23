@@ -9,8 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.example.userservice.domain.entity.NickNameHistory;
 import com.example.userservice.domain.entity.User;
-import com.example.userservice.domain.enums.UserRole;
-import com.example.userservice.domain.enums.UserStatus;
+import com.example.userservice.domain.entity.User.UserRole;
+import com.example.userservice.domain.entity.User.UserStatus;
 import com.example.userservice.domain.repository.history.NickNameHistoryRepository;
 import com.example.userservice.domain.repository.user.UserRepository;
 
