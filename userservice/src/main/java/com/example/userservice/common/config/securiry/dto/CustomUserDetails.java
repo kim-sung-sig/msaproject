@@ -15,11 +15,11 @@ import com.example.userservice.domain.model.UserForSecurity;
 import lombok.Data;
 
 @Data
-public class CustomUserDatails implements UserDetails {
+public class CustomUserDetails implements UserDetails {
 
     private UserForSecurity user;
 
-    public CustomUserDatails(UserForSecurity user){
+    public CustomUserDetails(UserForSecurity user){
         this.user = user;
     }
 

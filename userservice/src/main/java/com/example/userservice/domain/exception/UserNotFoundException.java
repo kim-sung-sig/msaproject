@@ -15,12 +15,12 @@ public class UserNotFoundException extends EntityNotFoundException {
         super(message);
     }
 
-    public UserNotFoundException(Exception e) {
-        super(DEFAULT_MESSAGE, e);
+    public UserNotFoundException(Exception cause) {
+        super(DEFAULT_MESSAGE, cause);
     }
 
-    public UserNotFoundException(String message, Exception e) {
-        super(message, e);
+    public UserNotFoundException(String message, Exception cause) {
+        super(message, cause);
     }
 
 }

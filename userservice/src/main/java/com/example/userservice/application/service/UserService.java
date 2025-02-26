@@ -1,11 +1,9 @@
 package com.example.userservice.application.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -106,6 +104,7 @@ public class UserService {
     }
 
     // 회원 정보 수정
+    @Transactional
     public void updateUser(UpdateUserRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -139,11 +138,6 @@ public class UserService {
         SecurityContextHolder.clearContext();
     }
 
-    // 잠금 풀기 (비밀 번호 실패 횟수 초과로 잠금)
-    public void unlockUser() {
-
-    }
-
     // 회원 정보 조회
     public void getUser() {
 
@@ -151,6 +145,11 @@ public class UserService {
 
     // 회원 정보 조회 with Profile
     public void getUserWithProfile() {
+
+    }
+
+    // 회원 정보 조회 (모든 프로필)
+    public void getUserWithProfileAll() {
 
     }
 
@@ -185,24 +184,6 @@ public class UserService {
                     nickNameHistoryRepository.save(newNickNameHistory); // 새로운 nickNameHistory 저장
                     return 1L;
                 });
-    }
-
-    private void passwordUpdateProcess(User user, String newPassword) {
-        // 이전 비밀 번호와 동일 한지 확인
-        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 5));
-        boolean isPasswordReused = passwordHistories.stream()
-                .anyMatch(passwordHistory -> passwordEncoder.matches(newPassword, passwordHistory.getPassword()));
-        if (isPasswordReused)
-            throw new RuntimeException("Password is reused");
-
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(newPassword);
-
-        // 저장 시작
-        user.changePassword(encodedPassword);
-        userRepository.save(user);
-
-        passwordHistoryRepository.save(PasswordHistory.builder().user(user).password(encodedPassword).build()); // passwordHistory 저장
     }
 
 }

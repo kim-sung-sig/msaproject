@@ -14,7 +14,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.userservice.common.config.securiry.dto.CustomUserDatails;
+import com.example.userservice.common.config.securiry.dto.CustomUserDetails;
 import com.example.userservice.domain.entity.User;
 import com.example.userservice.domain.exception.UserNotFoundException;
 import com.example.userservice.domain.model.UserForSecurity;
@@ -39,7 +39,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("로그인 성공" + authentication.getPrincipal());
 
-        CustomUserDatails userDatails = (CustomUserDatails) authentication.getPrincipal();
+        CustomUserDetails userDatails = (CustomUserDetails) authentication.getPrincipal();
         UserForSecurity userForSecurity = userDatails.getUser();
 
         processUserLoggedIn(userForSecurity);
