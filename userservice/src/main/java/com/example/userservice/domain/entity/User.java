@@ -8,6 +8,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.example.userservice.common.enums.EventType;
+import com.example.userservice.common.util.EventPublisher;
+import com.example.userservice.domain.event.user.UserEvent;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -17,6 +21,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostRemove;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -95,16 +105,20 @@ public class User implements Serializable {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void changePassword(String password) {
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public void changeTempPassword(String tempPassword, int minutes) {
+    public void setTempPassword(String tempPassword, int minutes) {
         this.tempPassword = tempPassword;
         this.tempPasswordExpiredAt = LocalDateTime.now().plusMinutes(minutes);
     }
 
-    public void increaseLoginFailCount() {
+    public void incrementLoginFailureCount() {
         this.loginFailCount++;
     }
 
@@ -158,6 +172,39 @@ public class User implements Serializable {
         public String getTitle() {
             return title;
         }
+    }
+
+    @PrePersist
+    public void _prePersist() {
+        // 도메인 모델 생성시 필수 값 체크로직?
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID();
+        }
+    }
+
+    @PostPersist
+    public void _postPersist() {
+        EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.CREATED));
+    }
+
+    @PreUpdate
+    public void _preUpdate() {
+        // 도메인 모델에 관한 필수값 체크로직?
+    }
+
+    @PostUpdate
+    public void _postUpdate() {
+        EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.UPDATED));
+    }
+
+    @PreRemove
+    public void _preDestroy() {
+
+    }
+
+    @PostRemove
+    public void _postDestroy() {
+        EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.DELETED));
     }
 
 }

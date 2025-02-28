@@ -81,7 +81,7 @@ public class CustomLoginFailureHandler implements AuthenticationFailureHandler {
         if (status.equals(UserStatus.LOCKED))
             return "LOCKED";
 
-        user.increaseLoginFailCount();
+        user.incrementLoginFailureCount();
         int failCount = user.getLoginFailCount();
         if (failCount >= 15) { // 15회 이상 실패시 계정 잠김
             userLockProcess(user);

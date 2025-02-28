@@ -2,6 +2,9 @@ package com.example.userservice.userservice;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -9,16 +12,19 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         int n = Integer.parseInt(br.readLine());
-        int 거스름돈 = 1000 - n;
 
-        int count = 0;
-        int[] 동전 = { 500, 100, 50, 10, 5, 1 };
-        for (int i = 0; i < 동전.length; i++) {
-            count += 거스름돈 / 동전[i];
-            거스름돈 %= 동전[i];
+        int[] arr = new int[n];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        IntStream.range(0, n).forEach(i -> arr[i] = Integer.parseInt(st.nextToken()));
+        br.close();
+
+        if (arr.length == 1) {
+            System.out.println((int) Math.pow(arr[0], 2));
+            return;
         }
 
-        System.out.println(count);
+        Arrays.sort(arr);
+        System.out.println(arr[0] * arr[arr.length - 1]);
     }
 
 }

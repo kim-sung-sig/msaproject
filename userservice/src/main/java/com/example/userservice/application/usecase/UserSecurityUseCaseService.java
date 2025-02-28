@@ -72,7 +72,7 @@ public class UserSecurityUseCaseService {
         String encodedPassword = passwordEncoder.encode(newPassword);
 
         // 저장 시작
-        User.builder().build().changePassword(encodedPassword);
+        User.builder().build().setPassword(encodedPassword);
     }
 
 }
