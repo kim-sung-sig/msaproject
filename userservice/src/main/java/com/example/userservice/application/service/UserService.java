@@ -10,9 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.userservice.api.request.UpdateUserRequest;
-import com.example.userservice.api.request.UserCreateCommand;
-import com.example.userservice.common.enums.EventType;
+import com.example.userservice.api.request.user.CreateUserCommand;
+import com.example.userservice.api.request.user.UpdateUserCommand;
 import com.example.userservice.common.exception.BusinessException;
 import com.example.userservice.common.exception.TemporaryException;
 import com.example.userservice.common.util.CommonUtil;
@@ -21,7 +20,6 @@ import com.example.userservice.domain.entity.PasswordHistory;
 import com.example.userservice.domain.entity.User;
 import com.example.userservice.domain.entity.User.UserRole;
 import com.example.userservice.domain.entity.User.UserStatus;
-import com.example.userservice.domain.event.user.UserEvent;
 import com.example.userservice.domain.exception.UserNotFoundException;
 import com.example.userservice.domain.repository.history.NickNameHistoryRepository;
 import com.example.userservice.domain.repository.history.PasswordHistoryRepository;
@@ -44,7 +42,7 @@ public class UserService {
 
     // 회원 가입
     @Transactional
-    public void createUser(UserCreateCommand command) {
+    public void createUser(CreateUserCommand command) {
         // 변수 추출
         String username = command.username().trim();
         if (!CommonUtil.isUsernameValid(username))
@@ -98,14 +96,11 @@ public class UserService {
                 .password(encodedPassword)
                 .build();
         passwordHistoryRepository.save(passwordHistory);
-
-        // 메시지 전송
-        applicationEventPublisher.publishEvent(new UserEvent(this, newUser, EventType.CREATED));
     }
 
     // 회원 정보 수정
     @Transactional
-    public void updateUser(UpdateUserRequest request) {
+    public void updateUser(UpdateUserCommand request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
@@ -114,9 +109,6 @@ public class UserService {
         // 변수 추출
 
         // 수정 시작
-
-        // 메시지 전송
-
     }
 
     // 회원 탈퇴
@@ -130,9 +122,6 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.userDelete();
-
-        // 메시지 전송
-        applicationEventPublisher.publishEvent(new UserEvent(this, user, EventType.DELETED));
 
         // 세션 무효화
         SecurityContextHolder.clearContext();
@@ -171,16 +160,16 @@ public class UserService {
         return nickNameHistoryRepository.findById(nickName)
                 .map(exist -> {
                     // 존재하면 +1 한 후 반환
-                    Long updatedNickSeq = exist.getSeq() + 1;
-                    exist.setSeq(updatedNickSeq);
+                    exist.increaseSeq();
                     nickNameHistoryRepository.save(exist); // nickSeq 업데이트
-                    return updatedNickSeq;
+                    return exist.getSeq();
                 })
                 .orElseGet(() -> {
                     // 존재하지 않으면 새로 저장하고 1을 반환
-                    NickNameHistory newNickNameHistory = new NickNameHistory();
-                    newNickNameHistory.setNickName(nickName);
-                    newNickNameHistory.setSeq(1L);
+                    NickNameHistory newNickNameHistory = NickNameHistory.builder()
+                            .nickName(nickName)
+                            .seq(1L)
+                            .build();
                     nickNameHistoryRepository.save(newNickNameHistory); // 새로운 nickNameHistory 저장
                     return 1L;
                 });

@@ -24,7 +24,7 @@ public class UserProfilePictureEvent extends ApplicationEvent {
     private final String status;
 
     // event 상태
-    private final String eventType;
+    private final EventType eventType;
 
     public UserProfilePictureEvent(Object source, UserProfilePicture profile, EventType eventType) {
         super(source);
@@ -37,7 +37,7 @@ public class UserProfilePictureEvent extends ApplicationEvent {
         this.fileUrl = profile.getFileUrl();
         this.status = profile.getStatus().name();
 
-        this.eventType = eventType.name();
+        this.eventType = eventType;
     }
 
 }

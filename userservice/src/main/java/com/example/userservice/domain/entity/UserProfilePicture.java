@@ -25,7 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -36,10 +36,10 @@ import lombok.NoArgsConstructor;
         @Index(name = "idx_user_profile_picture_user_id", columnList = "user_id"),
         @Index(name = "idx_user_profile_picture_status", columnList = "status"),})
 @EntityListeners(AuditingEntityListener.class)
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Builder
+@Getter
 public class UserProfilePicture {
 
     // key
@@ -54,8 +54,8 @@ public class UserProfilePicture {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private IsUsed status;
 
     @Column(name = "file_name")
@@ -75,7 +75,6 @@ public class UserProfilePicture {
 
     @Column(name = "file_url")
     private String fileUrl;
-
 
     // audit
     @CreatedDate

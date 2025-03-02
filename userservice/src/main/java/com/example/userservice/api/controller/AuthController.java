@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.userservice.api.request.UserCreateCommand;
+import com.example.userservice.api.request.user.CreateUserCommand;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class AuthController {
 
     // 회원 가입
     @PostMapping("/sign-up")
-    public void signUp(UserCreateCommand request) {
+    public void signUp(CreateUserCommand request) {
         log.info("회원 가입 요청");
     }
 
