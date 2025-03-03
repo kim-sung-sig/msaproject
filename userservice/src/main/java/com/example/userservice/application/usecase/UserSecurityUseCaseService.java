@@ -61,7 +61,7 @@ public class UserSecurityUseCaseService {
         // 3. 비밀번호 변경
 
         // 이전 비밀 번호와 동일 한지 확인
-        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findByUserOrderByCreatedAtDesc(null, PageRequest.of(0, 5));
+        List<PasswordHistory> passwordHistories = passwordHistoryRepository.findByUserIdOrderByCreatedAtDesc(null, PageRequest.of(0, 5));
         boolean isPasswordReused = passwordHistories.stream()
                 .anyMatch(passwordHistory -> passwordEncoder.matches(newPassword, passwordHistory.getPassword()));
         if (isPasswordReused)

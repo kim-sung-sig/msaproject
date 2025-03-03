@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.userservice.domain.entity.PasswordHistory;
-import com.example.userservice.domain.entity.User;
 
 @Repository
 public interface PasswordHistoryRepository extends JpaRepository<PasswordHistory, Long> {
@@ -17,6 +16,6 @@ public interface PasswordHistoryRepository extends JpaRepository<PasswordHistory
      * @param user
      * @return
      */
-    List<PasswordHistory> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    List<PasswordHistory> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
 }

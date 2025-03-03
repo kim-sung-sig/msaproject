@@ -84,10 +84,7 @@ public class UserService {
         userRepository.save(newUser);
 
         // passwordHistory 저장
-        PasswordHistory passwordHistory = PasswordHistory.builder()
-                .user(newUser)
-                .password(encodedPassword)
-                .build();
+        PasswordHistory passwordHistory = new PasswordHistory(newUser.getId(), encodedPassword);
         passwordHistoryRepository.save(passwordHistory);
     }
 
@@ -137,10 +134,7 @@ public class UserService {
             user.changePassword(encodedPassword);
 
             // passwordHistory 저장
-            PasswordHistory passwordHistory = PasswordHistory.builder()
-                    .user(user)
-                    .password(encodedPassword)
-                    .build();
+            PasswordHistory passwordHistory = new PasswordHistory(targetUserId, encodedPassword);
             passwordHistoryRepository.save(passwordHistory);
         }
 
