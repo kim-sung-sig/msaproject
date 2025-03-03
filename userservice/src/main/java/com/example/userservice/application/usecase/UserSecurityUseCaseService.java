@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.userservice.common.exception.BusinessException;
 import com.example.userservice.domain.entity.PasswordHistory;
-import com.example.userservice.domain.entity.User;
 import com.example.userservice.domain.repository.history.PasswordHistoryRepository;
 import com.example.userservice.domain.repository.user.UserRepository;
 
@@ -72,7 +71,6 @@ public class UserSecurityUseCaseService {
         String encodedPassword = passwordEncoder.encode(newPassword);
 
         // 저장 시작
-        User.builder().build().setPassword(encodedPassword);
     }
 
 }

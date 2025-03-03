@@ -1,37 +1,27 @@
 package com.example.userservice.domain.entity;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
-import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.userservice.common.enums.EventType;
 import com.example.userservice.common.util.EventPublisher;
 import com.example.userservice.domain.event.user.UserEvent;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -41,7 +31,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(
     name = "dn_user",
@@ -49,32 +41,34 @@ import lombok.ToString;
         @Index(name = "idx_user_uuid", columnList = "uuid", unique = true),
         @Index(name = "idx_user_username", columnList = "username", unique = true),
         @Index(name = "idx_user_nickname", columnList = "nick_name", unique = true),
-        @Index(name = "idx_user_email", columnList = "email"),})
+        @Index(name = "idx_user_email", columnList = "email"),
+    }
+)
 @EntityListeners(value = {AuditingEntityListener.class})
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Getter
 @ToString
-@EqualsAndHashCode
-public class User implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@EqualsAndHashCode(callSuper = false)
+public class User extends BaseEntity {
 
     // key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "uuid", nullable = false, unique = true)
-    @ColumnTransformer(write = "uuid_to_bin(?)", read = "bin_to_uuid(?)")
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
     private UUID uuid;
 
     // security
     @Column(name = "username", nullable = false, unique = true)
+    @Comment("아이디")
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
+    @Comment("비밀번호")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -121,27 +115,20 @@ public class User implements Serializable {
     @Comment("사용자 전화번호")
     private String phone;
 
-    // audit
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    // mapping
-    @OneToMany(targetEntity = UserProfilePicture.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserProfilePicture> userProfilePictures;
-
-    @OneToMany(targetEntity = PasswordHistory.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<PasswordHistory> passwordHistories;
-
     // method
+    public void changeName(String name) {
+        this.name = name;
+    }
 
-    public void setNickName(String nickName) {
+    public void changeEmail(String email) {
+        this.email = email;
+    }
+
+    public void changeNickName(String nickName) {
         this.nickName = nickName;
     }
 
-    public void setPassword(String password) {
+    public void changePassword(String password) {
         this.password = password;
     }
 
@@ -207,36 +194,28 @@ public class User implements Serializable {
     }
 
     @PrePersist
-    public void _prePersist() {
-        // 도메인 모델 생성시 필수 값 체크로직?
+    protected void onPrePersist() {
+        super.onPrePersist();
+        log.info("User onPrePersist");
         if (this.uuid == null) {
             this.uuid = UUID.randomUUID();
         }
     }
 
     @PostPersist
-    public void _postPersist() {
+    protected void onPostPersist() {
         EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.CREATED));
     }
 
     @PreUpdate
-    public void _preUpdate() {
-        // 도메인 모델에 관한 필수값 체크로직?
+    protected void onPreUpdate() {
+        super.onPreUpdate();
+
     }
 
     @PostUpdate
-    public void _postUpdate() {
+    protected void onPostUpdate() {
         EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.UPDATED));
-    }
-
-    @PreRemove
-    public void _preDestroy() {
-
-    }
-
-    @PostRemove
-    public void _postDestroy() {
-        EventPublisher.publish(new UserEvent(EventPublisher.class, this, EventType.DELETED));
     }
 
 }

@@ -12,10 +12,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.example.userservice.domain.entity.User.UserStatus;
 import com.example.userservice.domain.model.UserForSecurity;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class CustomUserDetails implements UserDetails {
+@Getter
+public class CustomUserDetails implements UserDetails{
+
+    private static final long serialVersionUID = 1L;
 
     private UserForSecurity user;
 

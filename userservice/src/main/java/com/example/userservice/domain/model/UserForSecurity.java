@@ -1,5 +1,6 @@
 package com.example.userservice.domain.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.userservice.domain.entity.User.UserRole;
@@ -17,4 +18,4 @@ public record UserForSecurity(
 
     LocalDateTime lastLoginAt,
     LocalDateTime createdAt
-) {}
+) implements Serializable {}

@@ -3,7 +3,7 @@ package com.example.userservice.application.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,34 +38,27 @@ public class UserService {
     private final PasswordHistoryRepository passwordHistoryRepository;
 
     private final PasswordEncoder passwordEncoder;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     // 회원 가입
     @Transactional
     public void createUser(CreateUserCommand command) {
         // 변수 추출
         String username = command.username().trim();
-        if (!CommonUtil.isUsernameValid(username))
-            throw new BusinessException("Username is not valid");
+        if (!CommonUtil.isUsernameValid(username)) throw new BusinessException("Username is not valid");
 
         String password = command.password().trim();
-        if (!CommonUtil.isPasswordValid(password))
-            throw new BusinessException("유효한 비밀번호가 아닙니다. 비밀번호는 8자 이상 20자 이하, 영문 대소문자, 숫자, 특수문자를 포함해야 합니다.");
+        if (!CommonUtil.isPasswordValid(password)) throw new BusinessException("유효한 비밀번호가 아닙니다. 비밀번호는 8자 이상 20자 이하, 영문 대소문자, 숫자, 특수문자를 포함해야 합니다.");
 
         String name = command.name().trim();
-        if (!CommonUtil.isNameValid(name))
-            throw new BusinessException("유효한 이름이 아닙니다.");
+        if (!CommonUtil.isNameValid(name)) throw new BusinessException("유효한 이름이 아닙니다.");
 
         String nickName = command.nickName().trim();
-        if (!CommonUtil.isNickNameValid(nickName))
-            throw new BusinessException("유효한 닉네임이 아닙니다. 닉네임은 2자 이상, 16자 이하로 입력해야 합니다.");
+        if (!CommonUtil.isNickNameValid(nickName)) throw new BusinessException("유효한 닉네임이 아닙니다. 닉네임은 2자 이상, 16자 이하로 입력해야 합니다.");
 
         String email = command.email().trim();
-        if (!CommonUtil.isEmailValid(email))
-            throw new BusinessException("유효한 이메일이 아닙니다.");
+        if (!CommonUtil.isEmailValid(email)) throw new BusinessException("유효한 이메일이 아닙니다.");
 
-        if (userRepository.existsByUsername(username))
-            throw new BusinessException("사용중인 아이디입니다.");
+        if (userRepository.existsByUsername(username)) throw new BusinessException("사용중인 아이디입니다.");
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
@@ -100,15 +93,57 @@ public class UserService {
 
     // 회원 정보 수정
     @Transactional
-    public void updateUser(UpdateUserCommand request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
+    public void updateUser(Long curUserId, Long targetUserId, UpdateUserCommand command) {
+        if (!curUserId.equals(targetUserId)) {
+            throw new InsufficientAuthenticationException("권한이 없습니다.");
+        }
+
+        User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new UserNotFoundException());
+        String currentPassword = command.currentPassword();
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BusinessException("비밀번호가 일치하지 않습니다.");
+        }
 
-        // 변수 추출
+        String name = command.name().trim();
+        if (name != null && !name.isEmpty()) {
+            if (!CommonUtil.isNameValid(name)) throw new BusinessException("유효한 이름이 아닙니다.");
 
-        // 수정 시작
+            user.changeName(name);
+        }
+
+        String nickName = command.nickName().trim();
+        if (nickName != null && !nickName.isEmpty()) {
+            if (!CommonUtil.isNickNameValid(nickName)) throw new BusinessException("유효한 닉네임이 아닙니다. 닉네임은 2자 이상, 16자 이하로 입력해야 합니다.");
+
+            // nickName 중복 방지를 위한 nickSeq 추출
+            long nickSeq = getNickSeq(nickName);
+
+            user.changeNickName(nickName + nickSeq);
+        }
+
+        String email = command.email().trim();
+        if (email != null && !email.isEmpty()) {
+            if (!CommonUtil.isEmailValid(email)) throw new BusinessException("유효한 이메일이 아닙니다.");
+
+            user.changeEmail(email);
+        }
+
+        String newPassword = command.newPassword().trim();
+        if (newPassword != null && !newPassword.isEmpty()) {
+            if (!CommonUtil.isPasswordValid(newPassword)) throw new BusinessException("유효한 비밀번호가 아닙니다. 비밀번호는 8자 이상 20자 이하, 영문 대소문자, 숫자, 특수문자를 포함해야 합니다.");
+
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            user.changePassword(encodedPassword);
+
+            // passwordHistory 저장
+            PasswordHistory passwordHistory = PasswordHistory.builder()
+                    .user(user)
+                    .password(encodedPassword)
+                    .build();
+            passwordHistoryRepository.save(passwordHistory);
+        }
+
     }
 
     // 회원 탈퇴

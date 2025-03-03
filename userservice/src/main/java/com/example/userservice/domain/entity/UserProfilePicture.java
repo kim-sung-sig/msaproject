@@ -1,10 +1,8 @@
 package com.example.userservice.domain.entity;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.Comment;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.userservice.common.enums.IsUsed;
@@ -22,6 +20,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +42,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Builder
 @Getter
-public class UserProfilePicture {
+public class UserProfilePicture extends BaseEntity {
 
     // key
     @Id
@@ -68,6 +70,7 @@ public class UserProfilePicture {
     private Long fileSize;
 
     @Column(name = "file_path")
+    @Comment("파일 저장 경로")
     private String filePath;
 
     @Column(name = "file_extension")
@@ -76,13 +79,24 @@ public class UserProfilePicture {
     @Column(name = "file_url")
     private String fileUrl;
 
-    // audit
-    @CreatedDate
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @PrePersist
+    protected void onPrePersist() {
+        super.onPrePersist();
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    }
+
+    @PostPersist
+    protected void onPostPersist() {
+    }
+
+    @PreUpdate
+    protected void onPreUpdate() {
+        super.onPreUpdate();
+    }
+
+    @PostUpdate
+    protected void onPostUpdate() {
+
+    }
 
 }

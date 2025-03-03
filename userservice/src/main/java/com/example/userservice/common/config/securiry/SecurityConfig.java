@@ -94,7 +94,7 @@ public class SecurityConfig {
                 .invalidSessionUrl(LOGIN_PAGE)
                 .sessionAuthenticationErrorUrl(LOGIN_PAGE)
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .sessionFixation().none()
+                .sessionFixation().newSession()
                 .maximumSessions(1)
                 .expiredUrl(LOGIN_PAGE);
         });

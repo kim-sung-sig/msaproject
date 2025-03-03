@@ -29,16 +29,15 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Void> getUserList(
-        @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        log.info("사용자 정보 조회 요청");
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{id}")
     public ResponseEntity<Void> getUser(
-        @AuthenticationPrincipal CustomUserDetails userDetails
-        , @PathVariable Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable(name = "id") Long targetUserId
     ) {
         log.info("사용자 정보 조회 요청");
         return ResponseEntity.ok().build();
@@ -46,32 +45,29 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Void> createUser(
-        @AuthenticationPrincipal CustomUserDetails userDetails
-        , @RequestBody CreateUserCommand command
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody CreateUserCommand command
     ) {
-        log.info("회원 가입 요청: {}", command);
         userService.createUser(command);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(
-        @AuthenticationPrincipal CustomUserDetails userDetails
-        , @PathVariable Long userId
-        , @RequestBody UpdateUserCommand command
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable(name = "id") Long targetUserId,
+            @RequestBody UpdateUserCommand command
     ) {
-        log.info("회원 정보 수정 요청: {}", command);
-        userDetails.getUser();
-        userService.updateUser(command);
+        userService.updateUser(userDetails.getUser().id(), targetUserId, command);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
-        @AuthenticationPrincipal CustomUserDetails userDetails
-        , @PathVariable Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable(name = "id") Long targetUserId
     ) {
-        log.info("회원 탈퇴 요청");
         return ResponseEntity.ok().build();
     }
+
 }

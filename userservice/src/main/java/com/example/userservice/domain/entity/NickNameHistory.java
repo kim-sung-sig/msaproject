@@ -3,6 +3,7 @@ package com.example.userservice.domain.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,11 @@ public class NickNameHistory {
 
     public void increaseSeq() {
         this.seq++;
+    }
+
+    @PrePersist
+    protected void onPrePersist() {
+        this.seq = 1L;
     }
 
 }

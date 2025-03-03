@@ -7,6 +7,9 @@ import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -33,11 +36,16 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+    private final SessionRegistry sessionRegistry = new SessionRegistryImpl();
 
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("로그인 성공" + authentication.getPrincipal());
+
+        // 기존 세션 강제 종료
+        sessionRegistry.getAllSessions(authentication.getPrincipal(), false)
+                .forEach(SessionInformation::expireNow);;
 
         CustomUserDetails userDatails = (CustomUserDetails) authentication.getPrincipal();
         UserForSecurity userForSecurity = userDatails.getUser();
