@@ -14,7 +14,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.demo.daangn" level="DEBUG"/>
+	<logger name="com.example.chatservice" level="DEBUG"/>
 	<!-- 언제 출력할 것인지를 지정한다. -->
 	<root level="info">
 		<appender-ref ref="CONSOLE" />

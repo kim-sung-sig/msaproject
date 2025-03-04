@@ -27,7 +27,7 @@ public class NickNameHistory {
     @Column(name = "nick_name")
     private String nickName;
 
-    @Column(name = "seq", columnDefinition = "int default 1")
+    @Column(name = "seq")
     private Long seq;
 
     public void increaseSeq() {
@@ -36,7 +36,9 @@ public class NickNameHistory {
 
     @PrePersist
     protected void onPrePersist() {
-        this.seq = 1L;
+        if (this.seq == null) {
+            this.seq = 1L;
+        }
     }
 
 }
