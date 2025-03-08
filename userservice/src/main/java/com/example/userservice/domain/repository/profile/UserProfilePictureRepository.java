@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.example.userservice.domain.entity.UserProfilePicture;
 
 @Repository
-public interface UserProfilePictureRepository extends JpaRepository<UserProfilePicture, Long> {
+public interface UserProfilePictureRepository extends JpaRepository<UserProfilePicture, Long>, UserProfilePictureRepositoryCustom {
 
 }

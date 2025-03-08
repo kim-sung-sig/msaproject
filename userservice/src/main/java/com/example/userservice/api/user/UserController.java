@@ -1,4 +1,4 @@
-package com.example.userservice.api.controller;
+package com.example.userservice.api.user;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.userservice.api.request.user.CreateUserCommand;
-import com.example.userservice.api.request.user.UpdateUserCommand;
+import com.example.userservice.api.user.request.CreateUserCommand;
+import com.example.userservice.api.user.request.UpdateUserCommand;
 import com.example.userservice.application.service.UserService;
 import com.example.userservice.common.config.securiry.dto.CustomUserDetails;
 

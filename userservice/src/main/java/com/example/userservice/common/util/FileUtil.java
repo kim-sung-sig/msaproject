@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.userservice.common.exception.FileValidationException;
@@ -15,19 +18,18 @@ import com.example.userservice.common.exception.FileValidationException;
 public class FileUtil {
 
     private static final List<String> SUPPORTED_EXTENSIONS = List.of(
-        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg", ".ico", ".raw");
+            "jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "svg", "ico", "raw");
 
     private static final List<String> RESERVED_FILENAMES = List.of(
-        "CON", "PRN", "AUX", "NUL",
-        "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-        "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
-    );
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
 
     private static final String RESERVED_UNIX_CHARS = "[/\\0:]"; // /, \0, : 등
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-    public static Path saveFile(Path targetDirPath, MultipartFile file) throws IOException {
+    public static Path saveFile(@NonNull Path targetDirPath, @NonNull MultipartFile file) throws IOException {
         // 파일 유효성 검사
         validateFile(file);
 
@@ -36,7 +38,7 @@ public class FileUtil {
 
         // 파일 이름과 확장자 분리
         String originalFileName = file.getOriginalFilename();
-        String fileNameWithoutExt = getFileNameWithoutExtension(originalFileName);
+        String fileNameWithoutExt = getFileBaseName(originalFileName);
         String fileExtension = getFileExtension(originalFileName);
 
         // 파일 경로와 이름이 중복되면 "(1)", "(2)" 방식으로 이름 변경
@@ -49,11 +51,7 @@ public class FileUtil {
         return finalTargetPath;
     }
 
-    /**
-     * 파일 유효성 검사
-     * @param file
-     */
-    public static void validateFile(MultipartFile file) {
+    public static void validateFile(@NonNull MultipartFile file) {
         if (file == null || file.isEmpty())
             throw new FileValidationException("파일이 전달되지 않았습니다.");
 
@@ -75,8 +73,8 @@ public class FileUtil {
             throw new FileValidationException("잘못된 파일 이름입니다. " + fileName);
 
         // 파일 확장자 검사
-        String fileExt = getFileExtension(fileName);
-        if (!SUPPORTED_EXTENSIONS.contains(fileExt.toLowerCase()))
+        String extention = getFileExtension(fileName);
+        if (!SUPPORTED_EXTENSIONS.contains(extention.toLowerCase()))
             throw new FileValidationException("지원하지 않는 파일 형식입니다. " + SUPPORTED_EXTENSIONS + " 파일만 업로드 가능합니다.");
 
         // 파일 이름 길이 검사
@@ -92,7 +90,7 @@ public class FileUtil {
             throw new FileValidationException("파일 이름에 슬래시(/, \\) 문자를 포함할 수 없습니다.");
 
         // 파일 이름이 Windows 예약어인지 검사 (확장자 제거 후 확인)
-        String nameWithoutExt = getFileNameWithoutExtension(fileName);
+        String nameWithoutExt = getFileBaseName(fileName);
         if (RESERVED_FILENAMES.contains(nameWithoutExt.toUpperCase()))
             throw new FileValidationException("예약된 파일 이름은 사용할 수 없습니다.");
 
@@ -102,34 +100,33 @@ public class FileUtil {
 
     }
 
-    /**
-     * 파일 이름에서 확장자를 제외한 부분을 반환
-     * @param fileName
-     * @return
-     */
-    public static String getFileNameWithoutExtension(String fileName) {
-        int lastIndex = fileName.lastIndexOf('.');
-        if (lastIndex == -1) {
-            return fileName;
-        }
-        return fileName.substring(0, lastIndex);
+    public static String getFileBaseName(String filePath) {
+        String baseName = StringUtils.getFilename(filePath);
+        return StringUtils.hasText(baseName) ? baseName : "";
     }
 
-    /**
-     * 파일 이름에서 확장자를 반환
-     * @param fileName
-     * @return
-     */
-    public static String getFileExtension(String fileName) {
-        int lastIndex = fileName.lastIndexOf('.');
-        if (lastIndex == -1) {
-            return "";
-        }
-        return fileName.substring(lastIndex);
+    public static String getFileExtension(String filePath) {
+        String extention = StringUtils.getFilenameExtension(filePath);
+        return StringUtils.hasText(extention) ? extention : "";
     }
 
-    private static Path getUniqueFilePath(Path targetDirPath, String baseName, String extension) throws IOException {
-        Path targetPath = targetDirPath.resolve(baseName + extension);
+    public static MediaType getContentType(String filePath) {
+        String extension = getFileExtension(filePath);
+
+        if (!StringUtils.hasText(extension))
+            return MediaType.APPLICATION_OCTET_STREAM;  // 확장자가 없으면 기본값 반환
+
+        return switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> MediaType.IMAGE_JPEG;
+            case "png" -> MediaType.IMAGE_PNG;
+            case "gif" -> MediaType.IMAGE_GIF;
+            case "webp" -> MediaType.valueOf("image/webp"); // WebP 지원 추가
+            default -> MediaType.APPLICATION_OCTET_STREAM;
+        };
+    }
+
+    public static Path getUniqueFilePath(Path targetDirPath, String baseName, String extension) throws IOException {
+        Path targetPath = targetDirPath.resolve(baseName + "." + extension);
         AtomicInteger counter = new AtomicInteger(1);
 
         // 중복된 파일 이름이 있을 경우 "(1)", "(2)" 방식으로 이름 변경

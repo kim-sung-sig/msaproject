@@ -10,8 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.userservice.api.request.user.CreateUserCommand;
-import com.example.userservice.api.request.user.UpdateUserCommand;
+import com.example.userservice.api.user.request.CreateUserCommand;
+import com.example.userservice.api.user.request.UpdateUserCommand;
 import com.example.userservice.common.exception.BusinessException;
 import com.example.userservice.common.exception.TemporaryException;
 import com.example.userservice.common.util.CommonUtil;

@@ -1,11 +1,11 @@
-package com.example.userservice.api.controller;
+package com.example.userservice.api.auth;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.userservice.api.request.user.CreateUserCommand;
+import com.example.userservice.api.user.request.CreateUserCommand;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +41,8 @@ public class AuthController {
     }
 
     // 토큰 발급
-    @PostMapping("/token")
-    public void accessToken(@RequestBody String entity) {
-        log.info("토큰 발급 요청");
-    }
+    @PostMapping("/token/refresh")
+    public void refreshToken(@RequestBody String entity) {
 
+    }
 }
