@@ -8,4 +8,6 @@ public interface UserRepositoryCustom {
 
     Optional<UserForSecurity> findByUsernameForSecurity(String username);
 
+    Optional<UserForSecurity> findByUserIdForSecurity(Long userId);
+
 }

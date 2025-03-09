@@ -1,4 +1,4 @@
-package com.example.userservice.application.service;
+package com.example.userservice.application.service.user;
 
 import java.util.Optional;
 import java.util.UUID;

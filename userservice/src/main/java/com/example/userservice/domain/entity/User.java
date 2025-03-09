@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.hibernate.annotations.Comment;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.example.userservice.application.components.EventPublisher;
 import com.example.userservice.common.enums.EventType;
-import com.example.userservice.common.util.EventPublisher;
 import com.example.userservice.domain.event.user.UserEvent;
 
 import jakarta.persistence.Column;

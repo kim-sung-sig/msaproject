@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.userservice.api.user.request.CreateUserCommand;
 import com.example.userservice.api.user.request.UpdateUserCommand;
-import com.example.userservice.application.service.UserService;
+import com.example.userservice.application.service.user.UserService;
 import com.example.userservice.common.config.securiry.dto.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.example.userservice.application.service;
+package com.example.userservice.application.service.profile;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;

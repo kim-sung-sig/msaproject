@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.userservice.application.service.UserProfilePictureService;
+import com.example.userservice.application.service.profile.UserProfilePictureService;
 import com.example.userservice.common.config.securiry.dto.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;

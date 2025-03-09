@@ -1,4 +1,4 @@
-package com.example.userservice.common.util;
+package com.example.userservice.application.components;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
