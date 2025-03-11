@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -87,21 +85,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
     }
 
-    @ExceptionHandler(LockedException.class)
-    public ResponseEntity<Map<String, Object>> handleLockedException(LockedException ex) {
-        Map<String, Object> errorResponse = Map.of(
-            ConstantsUtil.RETURN_MESSAGE, "사용자의 계정이 잠겼습니다.",
-            "errorCode", "ACCOUNT_LOCKED"
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException ex) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
-        errorResponse.put("error", "Invalid username or password");
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
 }

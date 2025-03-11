@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,7 +19,6 @@ import org.springframework.web.filter.CorsFilter;
 import com.example.userservice.common.config.securiry.handler.CustomLoginFailureHandler;
 import com.example.userservice.common.config.securiry.handler.CustomLoginSuccessHandler;
 import com.example.userservice.common.config.securiry.service.CustomUserDetailsService;
-import com.example.userservice.domain.entity.User.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,6 +54,14 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/token/refresh").permitAll()
+                .anyRequest().authenticated()
+            );
+        /*
         http.csrf((csrf) -> csrf.disable());
         http.httpBasic((basic) -> basic.disable());
         http.oauth2Login((oauth) -> oauth.disable()); // 일단 막자
@@ -98,6 +104,7 @@ public class SecurityConfig {
                 .maximumSessions(1)
                 .expiredUrl(LOGIN_PAGE);
         });
+        */
         return http.build();
     }
 

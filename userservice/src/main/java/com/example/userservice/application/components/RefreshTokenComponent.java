@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class RefreshTokenComponent {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN_PREFIX = "refresh:"; // key : refreshToken (String), value : userId (Long)

@@ -1,22 +1,24 @@
 package com.example.userservice.api.auth;
 
-import org.springframework.http.HttpHeaders;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.userservice.api.auth.request.UserLoginRequest;
 import com.example.userservice.api.user.request.CreateUserCommand;
-import com.example.userservice.application.components.JwtUtil;
 import com.example.userservice.application.service.auth.AuthService;
 import com.example.userservice.application.service.auth.JwtTokenResponse;
 import com.example.userservice.common.constants.ConstantsUtil;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,9 +26,24 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@RestControllerAdvice(basePackageClasses = AuthController.class)
 public class AuthController {
 
     private final AuthService authService;
+
+    // 토큰 발급 with (username, password)
+    @PostMapping("/login")
+    public ResponseEntity<JwtTokenResponse> login(@RequestBody UserLoginRequest loginRequest) {
+        JwtTokenResponse response = authService.createTokenByUsernameAndPassword(loginRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    // 토큰 발급 with (refresh token)
+    @PostMapping("/token/refresh")
+    public ResponseEntity<JwtTokenResponse> refreshToken(@RequestBody String refreshToken) {
+        JwtTokenResponse response = authService.createTokenByRefreshToken(refreshToken);
+        return ResponseEntity.ok(response);
+    }
 
     // 회원 가입
     @PostMapping("/signup")
@@ -34,33 +51,6 @@ public class AuthController {
         log.info("회원 가입 요청");
     }
 
-    /**
-     * Jwt AccessToken 발급 및 refreshToken 발급 (username, password)
-     * @param loginRequest
-     */
-    @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody UserLoginRequest loginRequest, HttpServletResponse response) {
-        JwtTokenResponse token = authService.login(loginRequest);
-        setRefreshTokenCookie(response, token.refreshToken());
-
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.AUTHORIZATION, JwtUtil.BEARER_PREFIX + token.accessToken())
-                .build();
-    }
-
-    /**
-     * Jwt AccessToken 발급 및 RefreshToken 발급 (refreshToken)
-     * @param entity
-     */
-    @PostMapping("/token/refresh")
-    public ResponseEntity<Void> refreshToken(@CookieValue(value = "refreshToken", required = true) String refreshToken, HttpServletResponse response) {
-        JwtTokenResponse token = authService.tokenRefresh(refreshToken);
-        setRefreshTokenCookie(response, token.refreshToken());
-
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.AUTHORIZATION, JwtUtil.BEARER_PREFIX + token.accessToken())
-                .build();
-    }
 
     // 비밀 번호 재설정 요청
     @PostMapping("/password-reset-request")
@@ -80,13 +70,23 @@ public class AuthController {
         log.info("회원 탈퇴 요청");
     }
 
-    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        // cookie.setSecure(true);  // HTTPS 연결에서만 전송
-        cookie.setPath("/");  // 모든 경로에서 접근 가능
-        cookie.setMaxAge((int) ConstantsUtil.REFRESH_TOKEN_TTL);  // 7일 동안 유효
-        response.addCookie(cookie);
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<Map<String, Object>> handleLockedException(LockedException ex) {
+        Map<String, Object> errorResponse = Map.of(
+            ConstantsUtil.RETURN_MESSAGE, "사용자의 계정이 잠겼습니다.",
+            "errorCode", "ACCOUNT_LOCKED"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException ex) {
+        Map<String, Object> errorResponse = Map.of(
+            ConstantsUtil.RETURN_MESSAGE, "아이디 또는 비밀번호가 일치하지 않습니다."
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
 }
